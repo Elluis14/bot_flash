@@ -105,7 +105,33 @@ def obtener_precio_pancakeswap(w3):
         print(f" [✗] Error al consultar el precio V2: {e}")
 
 if __name__ == "__main__":
-    print("--- Iniciando Fase 1: Inicialización de Escáner V2 ---")
+    print("--- Iniciando Fase 2: Monitor de Precios en Tiempo Real---")
     w3_client = conectar_blockchain()
     if w3_client:
-        obtener_precio_pancakeswap(w3_client)
+        ultimo_bloque = 0
+        print("[i] Iniciando bucle de monitoreo continuo...(Presiona Ctrl + C para detener)")
+        print ("-" * 60)
+        
+        while True:
+            try:
+                #1. Revisamos el bloque actual en la red
+                bloque_actual = w3_client.eth.block_number
+                
+                #2 Solo consultamos el precio si la blockchain avanzo a un nuevo bloque
+                if bloque_actual != ultimo_bloque:
+                    print(f"\n [•] Nuevo bloque detectado: #{bloque_actual}")
+                    obtener_precio_pancakeswap(w3_client)
+                    ultimo_bloque = bloque_actual
+            
+                time.sleep(2)
+                
+            except KeyboardInterrupt:
+                print("\n [!] Monitoreo detenido por el usuario. Saliendo...")
+                break
+            except Exception as e:
+                print(f" [!] Error en el bucle: {e}")
+                time.sleep(5) # Espera un poco más si hay un error de red antes de reintentar
+                    
+                
+        
+    
